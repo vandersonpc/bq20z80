@@ -26,6 +26,16 @@ Read the MacBook White (A1181) Internal Battery Texas Instrumens **DQ20Z80** IC 
 ![](img/terminal_output.png)
 
 ## Bench Setup
+
+ Battery      | Arduino          
+| ------------- |:-------------:
+| POS     | NC
+| TERM    | NC     
+| SCL     | I2C SCL
+| SDA     | I2C SDA  
+| SW      | Pin 11 
+| GND     | GND 
+
 ![](img/bench_1.jpg)
 ![](img/bench_2.jpg)
 ![](img/bench_3.jpg)
