@@ -7,6 +7,6 @@ Read the MacBook White (A1181) Internal Battery Texas Instrumens **DQ20Z80** IC 
 ![](battery.jpg)
 
 ## Battery Board Gutshot
-![](A1181_Bat_tearDown.jpg)
+![](A1181-battery-board.jpg)
 
 
