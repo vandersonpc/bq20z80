@@ -24,3 +24,6 @@ Read the MacBook White (A1181) Internal Battery Texas Instrumens **DQ20Z80** IC 
 
 ## Battey Information Terminal Output
 ![](img/terminal_output.png)
+
+## Bench Setup
+![](img/bench_1.jpg)
