@@ -4,14 +4,14 @@ Read the MacBook White (A1181) Internal Battery Texas Instrumens **DQ20Z80** IC 
 
 ## Battery Information
 
-![](a1185.png)
+![](img/a1185.png)
 
 ## Battery Board Gutshot
-![](A1181-battery-board.jpg)
+![](img/A1181-battery-board.jpg)
 
 ## Battery Connector PinOut
 
-![](A1185_pinout.png)
+![](img/A1185_pinout.png)
 
  Pin       | Description          
 | ------------- |:-------------:
@@ -23,4 +23,4 @@ Read the MacBook White (A1181) Internal Battery Texas Instrumens **DQ20Z80** IC 
 | GND     | Ground  
 
 ## Battey Information Terminal Output
-![](terminal_output.png)
+![](img/terminal_output.png)
