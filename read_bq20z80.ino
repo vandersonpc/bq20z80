@@ -16,7 +16,7 @@
 #define BQ20Z80  0x0B // i2c Address
 #define BQ_VOLTS 0x09 // Batt Voltage
 #define BQ_AMPS  0x0A // Batt Current
-#define BQ_TEMP  0x1C // Batt Temperature
+#define BQ_TEMP  0x08 // Batt Temperature
 #define BQ_CC    0x17 // Batt Cycle Count 
 #define BQ_DC    0x18 // Batt Design Capacity
 #define BQ_RC    0x0F // Batt Remain Capacity
@@ -181,11 +181,14 @@ int16_t dq_read16u(uint8_t address)
  */
  void readBattInfo()
  {
-  char strInfo[33];
-  readString(BQ_INFO,strInfo);
-  Serial.print("Bat Info: ");
-  Serial.print(strInfo);         // print the character
-  Serial.println(""); // new line
+   Serial.print("Battery Health: ");
+   Serial.print(dq_read16u(BQ_INFO), HEX);       // Print Absolute SOC
+   Serial.println("");    
+  //char strInfo[33];
+ // readString(BQ_INFO,strInfo);
+  //Serial.print("Bat Info: ");
+  //Serial.print(strInfo);         // print the character
+  //Serial.println(""); // new line
  }
 
 
@@ -233,7 +236,7 @@ int16_t dq_read16u(uint8_t address)
 void readBattTemp()
 {
   Serial.print("Temperature: ");
-  Serial.print((dq_read16u(BQ_TEMP) *0.1) - 273);       // Print Cycle Count
+  Serial.print((dq_read16u(BQ_TEMP) *0.1) - 273.15);       // Print Cycle Count
   Serial.println(" oC");
 }
 
@@ -387,7 +390,7 @@ void readBattTemp()
 void loop() { 
   Serial.println();
   readBattPinAlert();
- // readBattInfo();
+  //readBattInfo();
   readBattModel();
   readBattMName();
   readBattDate();
