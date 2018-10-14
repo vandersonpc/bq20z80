@@ -334,9 +334,30 @@ void readBattTemp()
 
  void readBattDate()
 {
+  int16_t fulldate;
+  int8_t year;
+  int8_t month;
+  int8_t day;
+      
+  fulldate = dq_read16u(BQ_DATE);
 
-  Serial.print("Date: ");
-  Serial.print(dq_read16u(BQ_DATE));       // Print Status
+  /* 
+   *  (Year - 1980) x 512 + month x 32 + day
+   *  
+   *  0xbyyyyyyymmmmddddd
+   *  
+   */
+   
+  year  = (fulldate >> 9);                        // Year  - First 7 bits
+  month = (fulldate & 0xb0000000111111111) >> 4;  // Month - Middle 4 bits
+  day   = (fulldate & 0xb0000000000011111);       // Day   - Last 5 bits
+  
+  Serial.print("Date [YYYY.MM.DD]: ");
+  Serial.print(1980 + year);       // Print Status
+   Serial.print(".");
+  Serial.print(month);       // Print Status
+   Serial.print(".");
+  Serial.print(day);       // Print Status
   Serial.println();
 }
 
