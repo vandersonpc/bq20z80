@@ -11,28 +11,47 @@
 #include "Arduino.h"
 #include "Wire.h"
 
-/* BQ20Z80 ADDRESS DEFINITION */
+/* Software Version */
+
+char const *softare_version = "1.01";
+
+/* BQ20Z80 Address Definition */
 
 #define BQ20Z80  0x0B // i2c Address
-#define BQ_VOLTS 0x09 // Batt Voltage
-#define BQ_AMPS  0x0A // Batt Current
-#define BQ_TEMP  0x08 // Batt Temperature
-#define BQ_CC    0x17 // Batt Cycle Count
-#define BQ_DC    0x18 // Batt Design Capacity
-#define BQ_RC    0x0F // Batt Remain Capacity
-#define BQ_ASOC  0x0E // Batt Absolute State of Cahrge
-#define BQ_MODEL 0x21 // Batt Model
-#define BQ_SN    0x1C // Batt Serial Number
-#define BQ_MNAME 0x20 // Batt Manufacturer Name
-#define BQ_INFO  0x23 // Batt Manufacturer Info
-#define BQ_SOH   0x4F // Batt State of Health
-#define BQ_STAT  0x16 // Batt Status
-#define BQ_DATE  0x1B // Batt Date
+
+/* BQ20Z80 SBS Commadns  definition */
+
+#define BQ_MANUFACTURER_ACCESS      0x00
+#define BQ_DEVICE_PART_NUMBER       0x01        // ------
+#define BQ_DEVICE_FIRMWARE_VERSION  0x02        // -- Chip specific commands
+#define BQ_DEVICE_HARDWARE_VERSION  0x03        // ------
+#define BQ_DEVICE_UNSEAL_KEY        0x36720414
+
+#define BQ_DEVICE_SEAL              0x20        // --
+#define BQ_LEDS_ON                  0x32        // -- Unsealed commands
+#define BQ_LEDS_OFF                 0x33        // --
+#define BQ_DISPLAY_ON               0x34        // ------
+
+#define BATTERY_TEMPERATURE         0x08
+#define BATTERY_VOLTAGE             0x09
+#define BATTERY_CURRENT             0x0A
+#define BATTERY_AVERAGE_CURRENT     0x0B
+#define BATTERY_ABSOLUTE_SOC        0x0E        // S.O.C = State of Charge
+#define BATTERY_REMAIN_CAPACITY     0x0F
+#define BATTERY_STATUS              0x16
+#define BATTERY_CYCLE_COUNT         0x17
+#define BATTERY_DESIGN_CAPACITY     0x18
+#define BATTERY_MANUFACTORY_DATE    0x1B
+#define BATTERY_SERIAL_NUMBER       0x1C
+#define BATTERY_MANUFACTURER_NAME   0x20
+#define BATTERY_MODEL               0x21
+#define BATTERY_MANUFACTURER_INFO   0x23
+#define BATTERY_STATE_OF_HEALTH     0x4F
 
 /* Pin Alert Input Pin */
 
-#define BS_ALERT_PIN 11    // Pin Alert Input
-#define LED_PIN      13    // LED Pin
+#define BS_ALERT_PIN                11         // Battery Connected Input
+#define BAT_CONNECTED_LED_PIN       13         // LED Pin
 
 /**/
 
@@ -46,14 +65,16 @@ void setup() {
   Serial.begin(115200); // Start Serial comms
   while (!Serial);
   pinMode(BS_ALERT_PIN, INPUT_PULLUP);
-  pinMode(LED_PIN, OUTPUT);
+  pinMode(BAT_CONNECTED_LED_PIN, OUTPUT);
   Wire.begin();         // Start I2C Communication
   delay(200);
 
   /* Init Message */
   Serial.println("===========================");
   Serial.println("   MacBook Battery Reader  ");
-  Serial.println("=====================v1.0==");
+  Serial.print("=====================");
+  Serial.print(softare_version);
+  Serial.println("==");
   Serial.println("2018 - By Vanderson Pimenta");
   Serial.println();
   Serial.print("DQ20Z80 Address: ");
@@ -169,7 +190,7 @@ int16_t dq_read16u(uint8_t address)
  void readBattModel()
  {
   char strModel[33];
-  readString(BQ_MODEL,strModel);
+  readString(BATTERY_MODEL,strModel);
   Serial.print("Bat Model: ");
   Serial.print(strModel);         // print the character
   Serial.println(""); // new line
@@ -182,7 +203,7 @@ int16_t dq_read16u(uint8_t address)
  void readBattInfo()
  {
    Serial.print("Battery Health: ");
-   Serial.print(dq_read16u(BQ_INFO), HEX);       // Print Absolute SOC
+   Serial.print(dq_read16u(BATTERY_MANUFACTURER_INFO), HEX);       // Print Absolute SOC
    Serial.println("");
   //char strInfo[33];
  // readString(BQ_INFO,strInfo);
@@ -199,7 +220,7 @@ int16_t dq_read16u(uint8_t address)
  void readBattMName()
  {
   char strInfo[33];
-  readString(BQ_MNAME,strInfo);
+  readString(BATTERY_MANUFACTURER_NAME,strInfo);
   Serial.print("Manufacturer Name: ");
   Serial.print(strInfo);         // print the character
   Serial.println(""); // new line
@@ -212,7 +233,7 @@ int16_t dq_read16u(uint8_t address)
   void readBattSOC()
   {
    Serial.print("Absolute SOC: ");
-   Serial.print(dq_read(BQ_ASOC));       // Print Absolute SOC
+   Serial.print(dq_read(BATTERY_ABSOLUTE_SOC));       // Print Absolute SOC
    Serial.println(" %");
   }
 
@@ -223,7 +244,7 @@ int16_t dq_read16u(uint8_t address)
   void readBattSOH()
   {
    Serial.print("Battery Health: ");
-   Serial.print(dq_read16u(BQ_SOH));       // Print Absolute SOC
+   Serial.print(dq_read16u(BATTERY_STATE_OF_HEALTH));       // Print Absolute SOC
    Serial.println(" %");
   }
 
@@ -236,8 +257,7 @@ int16_t dq_read16u(uint8_t address)
 void readBattTemp()
 {
   Serial.print("Temperature: ");
-  Serial.print((dq_read16u(BQ_TEMP) *0.1) - 273.15);       // Print Cycle Count
-  Serial.println(" oC");
+  Serial.print((dq_read16u(BATTERY_TEMPERATURE) *0.1) - 273.15);
 }
 
 /*
@@ -248,7 +268,7 @@ void readBattTemp()
  void readBattCycles()
 {
   Serial.print("Cycle Count: ");
-  Serial.print(dq_read16u(BQ_CC));       // Print Cycle Count
+  Serial.print(dq_read16u(BATTERY_CYCLE_COUNT));
   Serial.println("");
 }
 
@@ -260,19 +280,19 @@ void readBattTemp()
  void readBattVolts()
 {
   Serial.print("Voltage: ");
-  Serial.print(dq_read16u(BQ_VOLTS) *0.001);       // Print Voltage
+  Serial.print(dq_read16u(BATTERY_VOLTAGE) *0.001);
   Serial.println(" V");
 }
 
 /*
- * Read Battery Voltage
+ * Read Battery Current
  *
  */
 
  void readBattAmps()
 {
   Serial.print("Current: ");
-  Serial.print(dq_read16u(BQ_AMPS) *0.001);       // Print Current in Amps
+  Serial.print(dq_read16u(BATTERY_CURRENT) *0.001);
   Serial.println(" A");
 }
 
@@ -285,7 +305,7 @@ void readBattTemp()
 {
 
   Serial.print("Design Capacitty: ");
-  Serial.print(dq_read16u(BQ_DC));       // Print Design Capacity
+  Serial.print(dq_read16u(BATTERY_DESIGN_CAPACITY));
   Serial.println(" mAH");
 }
 
@@ -299,7 +319,7 @@ void readBattTemp()
 {
 
   Serial.print("Remain Capacitty: ");
-  Serial.print(dq_read16u(BQ_RC));       // Print Design Capacity
+  Serial.print(dq_read16u(BATTERY_REMAIN_CAPACITY));
   Serial.println(" mAH");
 }
 
@@ -312,7 +332,7 @@ void readBattTemp()
 {
 
   Serial.print("Serial Number: ");
-  Serial.print(dq_read16u(BQ_SN));       // Print Serial Number
+  Serial.print(dq_read16u(BATTERY_SERIAL_NUMBER));
   Serial.println();
 }
 
@@ -325,7 +345,7 @@ void readBattTemp()
 {
 
   Serial.print("Bat Status Flags: ");
-  Serial.print(dq_read16u(BQ_STAT), BIN);       // Print Status
+  Serial.print(dq_read16u(BATTERY_STATUS), BIN);
   Serial.println();
 }
 
@@ -342,7 +362,7 @@ void readBattTemp()
   int8_t month;
   int8_t day;
 
-  fulldate = dq_read16u(BQ_DATE);
+  fulldate = dq_read16u(BATTERY_MANUFACTORY_DATE);
 
   /*
    *  (Year - 1980) x 512 + month x 32 + day
@@ -354,6 +374,7 @@ void readBattTemp()
   year  = (fulldate >> 9);                        // Year  - First 7 bits
   month = (fulldate & 0xb0000000111111111) >> 4;  // Month - Middle 4 bits
   day   = (fulldate & 0xb0000000000011111);       // Day   - Last 5 bits
+
 
   Serial.print("Date [YYYY.MM.DD]: ");
   Serial.print(1980 + year);       // Print Status
@@ -374,12 +395,12 @@ void readBattTemp()
   if (pinStatus)
   {
      Serial.println("Battery Connected [OK]");
-     digitalWrite(LED_PIN,HIGH);
+     digitalWrite(BAT_CONNECTED_LED_PIN,HIGH);
   }
   else
    {
      Serial.println("Battery Connected [ERROR]");
-     digitalWrite(LED_PIN,LOW);
+     digitalWrite(BAT_CONNECTED_LED_PIN,LOW);
    }
  }
 
