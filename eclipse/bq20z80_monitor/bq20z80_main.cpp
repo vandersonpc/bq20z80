@@ -392,7 +392,7 @@ void readBattTemp()
  void readBattPinAlert()
  {
    int pinStatus = digitalRead(BS_ALERT_PIN);
-  if (pinStatus)
+  if (!pinStatus)
   {
      Serial.println("Battery Connected [OK]");
      digitalWrite(BAT_CONNECTED_LED_PIN,HIGH);
